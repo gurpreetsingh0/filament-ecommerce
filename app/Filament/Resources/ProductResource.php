@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Contracts\HasTable;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
@@ -74,16 +75,16 @@ class ProductResource extends Resource
   {
     return $table
       ->columns([
-        TextColumn::make('id')->sortable(),
+         TextColumn::make('index')
+        ->rowIndex(),
         TextColumn::make('name')->sortable()->searchable(),
         TextColumn::make('slug'),
         TextColumn::make('price')->numeric()->sortable()->searchable(),
         TextColumn::make('content')->sortable()->searchable(),
+        ImageColumn::make('gallery_images')->circular()->stacked(),
         ImageColumn::make('image')->circular(),
-        TextColumn::make('category.name')
-
-
-    ])
+        TextColumn::make('category.name'),
+     ])
       ->filters([
       SelectFilter::make('category')
         ->relationship('category', 'name')

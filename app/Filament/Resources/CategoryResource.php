@@ -31,105 +31,103 @@ use Filament\Tables\Actions\ViewAction;
 
 class CategoryResource extends Resource
 {
-    protected static ?string $model = Category::class;
+  protected static ?string $model = Category::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-tag';
+  protected static ?string $navigationIcon = 'heroicon-o-tag';
 
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-       TextInput::make('name')
-        ->live(onBlur: true)
-        ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
-          if (($get('slug') ?? '') !== Str::slug($old)) {
-            return;
-          }
+  public static function form(Form $form): Form
+  {
+    return $form
+      ->schema([
+        TextInput::make('name')->required()
+          ->live(onBlur: true)
+          ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
+            if (($get('slug') ?? '') !== Str::slug($old)) {
+              return;
+            }
 
-          $set('slug', Str::slug($state));
-        }),
+            $set('slug', Str::slug($state));
+          }),
 
-      TextInput::make('slug'),
+        TextInput::make('slug'),
 
-      Select::make('status')
-        ->label('Select Status')
-        ->options([
-          'active'=>'Active',
-          'deactive'=>'Deactive'
+        Select::make('status')
+          ->label('Select Status')
+          ->options([
+            'active' => 'Active',
+            'deactive' => 'Deactive'
+          ]),
+      ]);
+  }
+
+  public static function table(Table $table): Table
+  {
+    return $table
+      ->columns([
+        TextColumn::make('index')
+          ->rowIndex(),
+        TextColumn::make('name')->sortable()->searchable(),
+        TextColumn::make('slug'),
+        TextColumn::make('status'),
+
+
+
+
+      ])
+
+      // ->headerActions([
+      //   Action::make('createCategory')
+      //     ->label('Create Category')
+      //     ->modalHeading('New Category')
+      //     ->form([
+      //      TextInput::make('name')
+      //     ->live(onBlur: true)
+      //     ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
+      //       if (($get('slug') ?? '') !== Str::slug($old)) {
+      //         return;
+      //       }
+
+      //       $set('slug', Str::slug($state));
+      //     }),
+
+      //   TextInput::make('slug')
+      //     ])
+      //     ->action(function (array $data) {
+      //       \App\Models\Category::create($data);
+      //     })
+      //     ->successNotificationTitle('Category created successfully')
+      //     ->icon('heroicon-o-plus'),
+      // ])
+      ->filters([
+        //
+      ])
+      ->actions([
+        ActionGroup::make([
+          ViewAction::make(),
+          EditAction::make(),
+          DeleteAction::make(),
         ]),
-     ]);
+      ])
+      ->bulkActions([
+        Tables\Actions\BulkActionGroup::make([
+          Tables\Actions\DeleteBulkAction::make(),
+        ]),
+      ]);
+  }
 
+  public static function getRelations(): array
+  {
+    return [
+      RelationManagers\ProductsRelationManager::class,
+    ];
+  }
 
-
-    }
-
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-            TextColumn::make('id')->sortable(),
-            TextColumn::make('name')->sortable()->searchable(),
-            TextColumn::make('slug'),
-            TextColumn::make('status'),
-
-     
-            
-            
-    ])
-    
-    // ->headerActions([
-    //   Action::make('createCategory')
-    //     ->label('Create Category')
-    //     ->modalHeading('New Category')
-    //     ->form([
-    //      TextInput::make('name')
-    //     ->live(onBlur: true)
-    //     ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
-    //       if (($get('slug') ?? '') !== Str::slug($old)) {
-    //         return;
-    //       }
-
-    //       $set('slug', Str::slug($state));
-    //     }),
-
-    //   TextInput::make('slug')
-    //     ])
-    //     ->action(function (array $data) {
-    //       \App\Models\Category::create($data);
-    //     })
-    //     ->successNotificationTitle('Category created successfully')
-    //     ->icon('heroicon-o-plus'),
-    // ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                    ActionGroup::make([
-                      ViewAction::make(),
-                      EditAction::make(),
-                      DeleteAction::make(),
-                    ]),
-             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListCategories::route('/'),
-            'create' => Pages\CreateCategory::route('/create'),
-            'edit' => Pages\EditCategory::route('/{record}/edit'),
-        ];
-    }
+  public static function getPages(): array
+  {
+    return [
+      'index' => Pages\ListCategories::route('/'),
+      'create' => Pages\CreateCategory::route('/create'),
+      'edit' => Pages\EditCategory::route('/{record}/edit'),
+    ];
+  }
 }
