@@ -24,12 +24,19 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Filters\SelectFilter;
+
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 
 class ProductResource extends Resource
 {
   protected static ?string $model = Product::class;
 
-  protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+  protected static ?string $navigationIcon = 'heroicon-o-adjustments-horizontal';
+  
 
   public static function form(Form $form): Form
   {
@@ -47,24 +54,18 @@ class ProductResource extends Resource
 
         TextInput::make('slug'),
         TextInput::make('price')->required()->numeric(),
-        TextInput::make('content'),
-        
+         
        FileUpload::make('image'),
-        // ->directory('image')           // Save files to storage/app/resumes
-        // ->preserveFilenames()
-        // ->maxSize(2048)                  // Max 2MB
-        // ->required(),
+       FileUpload::make('gallery_images')
+        ->multiple(),
+        
 
 
       Select::make('category_id')
         ->label('Select Category')
         ->options(Category::all()->pluck('name', 'id'))
         ->searchable(),
-
-      Textarea::make('content')
-
-
-
+        Textarea::make('content')
 
     ]);
   }
@@ -78,16 +79,21 @@ class ProductResource extends Resource
         TextColumn::make('slug'),
         TextColumn::make('price')->numeric()->sortable()->searchable(),
         TextColumn::make('content')->sortable()->searchable(),
-        ImageColumn::make('image')
-        ->circular(),
-        
-      ])
+        ImageColumn::make('image')->circular(),
+        TextColumn::make('category.name')
+
+
+    ])
       ->filters([
-        //
+      SelectFilter::make('category')
+        ->relationship('category', 'name')
       ])
       ->actions([
-        Tables\Actions\DeleteAction::make(),
-        Tables\Actions\EditAction::make(),
+        ActionGroup::make([
+          ViewAction::make(),
+          EditAction::make(),
+          DeleteAction::make(),
+        ]),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([

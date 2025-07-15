@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('image')->nullable(); // or ->default('default.png')
             $table->integer('price');
             $table->foreignId('category_id')->constrained()->onDelete('cascade')->on('categories');
-            $table->text('content');
+            $table->text('content')->nullable();
             $table->timestamps();
         });
     }
